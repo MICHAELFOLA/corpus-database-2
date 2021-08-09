@@ -84,21 +84,28 @@ def add(request):
             subs.append(" ".join(words[i : i + n]))
         return subs
 
-    @transaction.atomic
+
     def PassageFrame(lst):
         columnsuffix = string.ascii_uppercase
         df = pd.DataFrame(
             lst, index=[f"Passage {j}" for _, j in list(zip(lst, columnsuffix))]
         ).T  # for Passage (alphabet)
         df = df.to_dict("list")
-        res_bytes = json.dumps(df).encode('utf-8')
-        db = Article(passage=res_bytes, Article_Title=subheading, url=article_url)
-        db.save()
+        #res_bytes = json.dumps(df).encode('utf-8')
+        #db = Article(passage=res_bytes, Article_Title=subheading, url=article_url)
+        #db.save()
         # df = pd.DataFrame(lst, index=[f'Passage {j}' for _, j in list(zip(lst, len(lst)))]).T  # for Passage (number)
         return df
+    
 
     lst = stringDivisor(n)
     data = PassageFrame(lst)
 
     result = [data]
+    return result
+    
+def json_result(request):
+    result = add(request)    
     return JsonResponse(result, safe=False)
+
+

@@ -1,9 +1,14 @@
+from django.db.models import fields
 from django.shortcuts import render, redirect
 from django.shortcuts import render, get_object_or_404
+from django.core.serializers import serialize
 from django.views.generic import ListView
 from .forms import WebForm
-from django.views.generic import ListView
-
+from django.http import JsonResponse
+from django.http import HttpResponse, response
+import csv
+from .models import Post
+from .task import add
 
 
 def webcrawl_input(request):
@@ -34,3 +39,19 @@ def webcrawl_input(request):
                 'post/detail.html', {'form': form, 'message': message, 'task':task})
 
 
+# class Download(ListView):
+#     model = Post
+#     queryset = Post.objects.all()
+
+def download(request, **kwargs):
+    data = add(request)
+    response = HttpResponse(content_type='text/csv')
+    title = request.session['sub']
+    writer = csv.writer(response)
+    writer.writerow([title])
+    for i in data:
+        writer.writerow(i.keys())
+        writer.writerow(i.values())
+    
+    response['content-Disposition'] = 'attachment; filename="passage.csv"'
+    return response
